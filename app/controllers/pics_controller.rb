@@ -2,6 +2,8 @@ class PicsController < ApplicationController
 
 	before_action :find_pic, only: [:show, :edit, :update, :destroy, :upvote]
 	before_action :authenticate_user!, except: [:index, :show]
+	before_action :require_same_user, only: [:edit, :update, :destroy]
+
   def index
   	@pics = Pic.all.order("created_at DESC")
   end
@@ -52,5 +54,12 @@ class PicsController < ApplicationController
 
 	def find_pic
 		@pic = Pic.find(params[:id])
+	end
+
+	def require_same_user
+	    if current_user != @pic.user
+	        flash[:danger] = "You can only edit or delete your own pictures"
+	        redirect_to root_path
+	    end
 	end
 end
